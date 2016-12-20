@@ -1,6 +1,6 @@
 # DaydreamController
 
-Supports the Google VR Daydream View Controller on iOS.
+Supports the Google VR [Daydream View Controller](https://vr.google.com/intl/en_en/daydream/headset/) on iOS.
 This is a first working hack.
 
 Create a new iOS Game project (SceneKit) with Xcode, add the DaydreamController.swift file
