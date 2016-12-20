@@ -3,7 +3,7 @@
 Supports the Google VR Daydream View Controller on iOS.
 This is a first working hack.
 
-Create a new iOS Game project (SceneKit) with Xcode, add this class
+Create a new iOS Game project (SceneKit) with Xcode, add the DaydreamController.swift file
 and modify GameViewController.swift like this:
 
 	class GameViewController: UIViewController
@@ -45,5 +45,3 @@ and modify GameViewController.swift like this:
 	        ship.orientation = SCNQuaternion(q.x, q.y, q.z, q.w)
 	    }
 	}
-
-
