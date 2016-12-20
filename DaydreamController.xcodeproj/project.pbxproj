@@ -14,6 +14,7 @@
 		D49196BB1E08B44900645591 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D49196BA1E08B44900645591 /* Assets.xcassets */; };
 		D49196BE1E08B44900645591 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D49196BC1E08B44900645591 /* LaunchScreen.storyboard */; };
 		D49196C61E08B4BB00645591 /* DaydreamController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49196C51E08B4BB00645591 /* DaydreamController.swift */; };
+		D49196C81E08C7ED00645591 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = D49196C71E08C7ED00645591 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		D49196BD1E08B44900645591 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D49196BF1E08B44900645591 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D49196C51E08B4BB00645591 /* DaydreamController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DaydreamController.swift; sourceTree = "<group>"; };
+		D49196C71E08C7ED00645591 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +44,7 @@
 		D49196A51E08B44900645591 = {
 			isa = PBXGroup;
 			children = (
+				D49196C71E08C7ED00645591 /* README.md */,
 				D49196B01E08B44900645591 /* DaydreamController */,
 				D49196AF1E08B44900645591 /* Products */,
 			);
@@ -145,6 +148,7 @@
 			files = (
 				D49196B61E08B44900645591 /* GameViewController.swift in Sources */,
 				D49196B21E08B44900645591 /* AppDelegate.swift in Sources */,
+				D49196C81E08C7ED00645591 /* README.md in Sources */,
 				D49196C61E08B4BB00645591 /* DaydreamController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -307,6 +311,7 @@
 				D49196C41E08B44900645591 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
