@@ -19,14 +19,14 @@ class GameViewController: UIViewController
         controller.delegate = self
         controller.connect()
             
-            ....
-            
-            // retrieve the ship node
-            ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
-            
-            // animate the 3d object
-            // ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
-            
+        ....
+
+        // retrieve the ship node
+        ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
+
+        // animate the 3d object
+        // ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
+
         ....
     }
 }
@@ -47,4 +47,3 @@ extension GameViewController: DaydreamControllerDelegate
     }
 }
 ```	
-    
