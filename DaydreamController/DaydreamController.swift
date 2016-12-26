@@ -1,6 +1,4 @@
-//
 //  Supports the Google VR Daydream View Controller on iOS.
-//  This is a first working hack.
 //
 //  DaydreamController.swift
 //
@@ -8,8 +6,8 @@
 //  Copyright © 2016 Carsten Weiße. All rights reserved.
 
 /*
- Create a new iOS Game project (SceneKit) with Xcode, add this class
- and modify GameViewController.swift like this:
+Create a new iOS Game project (SceneKit) with Xcode, add this class
+and modify GameViewController.swift like this:
 
 class GameViewController: UIViewController
 {
@@ -23,14 +21,13 @@ class GameViewController: UIViewController
         controller.delegate = self
         controller.connect()
             
-            ....
+        ....
             
-            // retrieve the ship node
-            ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
-            
-            // animate the 3d object
-            // ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
-            
+        // retrieve the ship node
+        ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
+
+        // animate the 3d object
+        // ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
         ....
     }
 }
@@ -61,6 +58,7 @@ class DaydreamController: NSObject
     let DAYDREAM_NAME = "Daydream controller"
     let DAYDREAM_SERVICE = CBUUID(string: "0000fe55-0000-1000-8000-00805f9b34fb")
     let DAYDREAM_CHARACTERISTIC = CBUUID(string: "00000001-1000-1000-8000-00805f9b34fb")
+    let DAYDREAM_SENSOR_DATA_SIZE = 20
     
     // bluetooth low energy
     fileprivate var manager: CBCentralManager!
@@ -78,7 +76,7 @@ class DaydreamController: NSObject
     
     func connect() {
         if nil == manager {
-            let managerQ = DispatchQueue(label: "vr.daydreamcontroller", qos: .userInitiated)
+            let managerQ = DispatchQueue(label: "vr.daydreamcontroller", qos: .userInteractive)
             manager = CBCentralManager(delegate: self, queue: managerQ)
         }
         
@@ -221,13 +219,11 @@ class DaydreamController: NSObject
             }
             
             do {
-                //let scale = Float(2 * .pi / 720.0) // cwei
-                let scale = Float(.pi * 2048.0 / 4095.00 / 180.0) // from vrcore
+                let scale = Float(.pi * 2048.0 / 4095.0 / 180.0)
                 gyro = (Float(gx) * scale, Float(gy) * scale, Float(gz) * scale)
             }
             
-            // The touch position from upper left (0, 0) to lower right (1, 1).
-            touchPos = (Float(tx) / 255.0, Float(ty) / 255.0)
+            touchPos = (Float(tx) / 255.0, Float(ty) / 255.0) // The touch position from upper left (0, 0) to lower right (1, 1).
             isTouching = (0 < tx || 0 < ty)
             
             clickButton = (0 < (buttonFlags & 0b00001))
@@ -235,7 +231,6 @@ class DaydreamController: NSObject
             appButton   = (0 < (buttonFlags & 0b00100))
             plusButton  = (0 < (buttonFlags & 0b01000))
             minusButton = (0 < (buttonFlags & 0b10000))
-            
             // transient events
             touchUp         = (!isTouching && prev.isTouching)
             touchDown       = (isTouching && !prev.isTouching)
@@ -275,9 +270,7 @@ extension DaydreamController: CBCentralManagerDelegate
         
         if true == device?.contains(DAYDREAM_NAME) {
             self.manager.stopScan()
-            
             print("\(peripheral.name!) found")
-            
             self.peripheral = peripheral
             self.peripheral?.delegate = self
             
@@ -288,8 +281,10 @@ extension DaydreamController: CBCentralManagerDelegate
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("\(peripheral.name!) \(peripheral.state)")
+        DispatchQueue.main.async {
+            self.delegate?.daydreamControllerDidConnect(self)
+        }
         peripheral.discoverServices(nil)
-        delegate?.daydreamControllerDidConnect(self)
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
@@ -334,15 +329,19 @@ extension DaydreamController: CBPeripheralDelegate
         guard characteristic == self.characteristic else {
             return
         }
+        guard let sensorData = characteristic.value else {
+            return
+        }
+        guard DAYDREAM_SENSOR_DATA_SIZE == sensorData.count else {
+            return
+        }
         
-        if let sensorData = characteristic.value {
-            let newState = State(sensorData, prev: state)
-            prevState = state
-            state = newState
-            
-            DispatchQueue.main.async {
-                self.delegate?.daydreamControllerDidUpdate(self, state: newState)
-            }
+        let newState = State(sensorData, prev: state)
+        prevState = state
+        state = newState
+        
+        DispatchQueue.main.async {
+            self.delegate?.daydreamControllerDidUpdate(self, state: newState)
         }
     }
 }
@@ -358,3 +357,4 @@ extension CBPeripheralState: CustomStringConvertible
         }
     }
 }
+// 360 ;-)

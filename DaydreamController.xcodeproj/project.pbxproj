@@ -14,7 +14,6 @@
 		D49196BB1E08B44900645591 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D49196BA1E08B44900645591 /* Assets.xcassets */; };
 		D49196BE1E08B44900645591 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D49196BC1E08B44900645591 /* LaunchScreen.storyboard */; };
 		D49196C61E08B4BB00645591 /* DaydreamController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D49196C51E08B4BB00645591 /* DaydreamController.swift */; };
-		D49196C81E08C7ED00645591 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = D49196C71E08C7ED00645591 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -148,7 +147,6 @@
 			files = (
 				D49196B61E08B44900645591 /* GameViewController.swift in Sources */,
 				D49196B21E08B44900645591 /* AppDelegate.swift in Sources */,
-				D49196C81E08C7ED00645591 /* README.md in Sources */,
 				D49196C61E08B4BB00645591 /* DaydreamController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
