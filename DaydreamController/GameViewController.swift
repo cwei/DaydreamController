@@ -15,6 +15,7 @@ class GameViewController: UIViewController
     let controller = DaydreamController()
     var ship: SCNNode!
     var orientation0 = GLKQuaternionIdentity
+    var firstUpdate = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -134,21 +135,25 @@ class GameViewController: UIViewController
 extension GameViewController: DaydreamControllerDelegate
 {
     func daydreamControllerDidConnect(_ controller: DaydreamController) {
-        print("Press the home button to recenter the controller's orientation and app button for battery level")
+        print("Press the home button to recenter the controller's orientation")
     }
     
+    func daydreamControllerDidUpdate(_ controller: DaydreamController, batteryLevel: UInt8) {
+        print("battery level \(batteryLevel)%")
+    }
+
     func daydreamControllerDidUpdate(_ controller: DaydreamController, state: DaydreamController.State) {
-        if state.homeButtonDown {
+        if firstUpdate {
+            firstUpdate = false
             orientation0 = GLKQuaternionInvert(state.orientation)
         }
         
-        if state.appButtonDown {
-            if let batteryLevel = controller.batteryLevel {
-                print("battery level \(batteryLevel)%")
-            }
+        if state.homeButtonDown {
+            orientation0 = GLKQuaternionInvert(state.orientation)
         }
         
         let q = GLKQuaternionMultiply(orientation0 ,state.orientation)
         ship.orientation = SCNQuaternion(q.x, q.y, q.z, q.w)
     }
+    
 }

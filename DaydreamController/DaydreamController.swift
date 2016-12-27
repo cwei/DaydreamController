@@ -37,12 +37,16 @@ extension GameViewController: DaydreamControllerDelegate
     func daydreamControllerDidConnect(_ controller: DaydreamController) {
         print("Press the home button to recenter the controller's orientation")
     }
-    
+
+    func daydreamControllerDidUpdate(_ controller: DaydreamController, batteryLevel: UInt8) {
+        print("battery level \(batteryLevel)%")
+    }
+
     func daydreamControllerDidUpdate(_ controller: DaydreamController, state: DaydreamController.State) {
         if state.homeButtonDown {
             orientation0 = GLKQuaternionInvert(state.orientation)
         }
-        
+
         let q = GLKQuaternionMultiply(orientation0 ,state.orientation)
         ship.orientation = SCNQuaternion(q.x, q.y, q.z, q.w)
     }
@@ -262,6 +266,8 @@ class DaydreamController: NSObject
 protocol DaydreamControllerDelegate
 {
     func daydreamControllerDidConnect(_ controller: DaydreamController)
+
+    func daydreamControllerDidUpdate(_ controller: DaydreamController, batteryLevel: UInt8)
     
     func daydreamControllerDidUpdate(_ controller: DaydreamController, state: DaydreamController.State)
 }
@@ -270,7 +276,7 @@ extension DaydreamController: CBCentralManagerDelegate
 {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn {
-            central.scanForPeripherals(withServices: nil, options: nil)
+            central.scanForPeripherals(withServices: [DAYDREAM_SERVICE], options: nil)
         } else {
             print("Bluetooth not available.")
         }
@@ -351,7 +357,7 @@ extension DaydreamController: CBPeripheralDelegate
             guard let sensorData = characteristic.value, 20 == sensorData.count else {
                 return
             }
-            
+
             let newState = State(sensorData, prev: state)
             self.prevState = state
             self.state = newState
@@ -365,6 +371,10 @@ extension DaydreamController: CBPeripheralDelegate
             }
 
             self.batteryLevel = batteryData[0]
+
+            DispatchQueue.main.async {
+                self.delegate?.daydreamControllerDidUpdate(self, batteryLevel: batteryData[0])
+            }
         }
     }
 }
