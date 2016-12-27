@@ -134,12 +134,18 @@ class GameViewController: UIViewController
 extension GameViewController: DaydreamControllerDelegate
 {
     func daydreamControllerDidConnect(_ controller: DaydreamController) {
-        print("Press the home button to recenter the controller's orientation")
+        print("Press the home button to recenter the controller's orientation and app button for battery level")
     }
     
     func daydreamControllerDidUpdate(_ controller: DaydreamController, state: DaydreamController.State) {
         if state.homeButtonDown {
             orientation0 = GLKQuaternionInvert(state.orientation)
+        }
+        
+        if state.appButtonDown {
+            if let batteryLevel = controller.batteryLevel {
+                print("battery level \(batteryLevel)%")
+            }
         }
         
         let q = GLKQuaternionMultiply(orientation0 ,state.orientation)

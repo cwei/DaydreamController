@@ -58,17 +58,21 @@ class DaydreamController: NSObject
     let DAYDREAM_NAME = "Daydream controller"
     let DAYDREAM_SERVICE = CBUUID(string: "0000fe55-0000-1000-8000-00805f9b34fb")
     let DAYDREAM_CHARACTERISTIC = CBUUID(string: "00000001-1000-1000-8000-00805f9b34fb")
-    let DAYDREAM_SENSOR_DATA_SIZE = 20
     
+    let BATTERY_SERVICE = CBUUID(string: "180F")
+    let BATTERY_LEVEL_CHARACTERISTIC = CBUUID(string: "2A19")
+    
+    var delegate: DaydreamControllerDelegate?
+    fileprivate(set) var batteryLevel: UInt8? = nil // 0 - 100%
+
     // bluetooth low energy
     fileprivate var manager: CBCentralManager!
     fileprivate var peripheral: CBPeripheral?
     fileprivate var characteristic: CBCharacteristic?
+    fileprivate var batteryLevelCharacteristic: CBCharacteristic?
     // controller sensor, touch pad and buttons state
     fileprivate var prevState = State()
     fileprivate var state = State()
-    
-    var delegate: DaydreamControllerDelegate?
     
     var connected: Bool {
         return .connected == (peripheral?.state ?? .disconnected)
@@ -91,15 +95,11 @@ class DaydreamController: NSObject
     }
     
     func pause() {
-        if let characteristic = characteristic {
-            peripheral?.setNotifyValue(false, for: characteristic)
-        }
+        setNotifyValues(false)
     }
     
     func resume() {
-        if let characteristic = characteristic {
-            peripheral?.setNotifyValue(true, for: characteristic)
-        }
+        setNotifyValues(true)
     }
     
     func disconnect() {
@@ -108,6 +108,17 @@ class DaydreamController: NSObject
             manager?.cancelPeripheralConnection(peripheral)
         }
     }
+    
+    private func setNotifyValues(_ enabled: Bool) {
+        if let characteristic = characteristic {
+            peripheral?.setNotifyValue(enabled, for: characteristic)
+        }
+        
+        if let batteryLevelCharacteristic = batteryLevelCharacteristic {
+            peripheral?.setNotifyValue(enabled, for: batteryLevelCharacteristic)
+        }
+    }
+    
     
     struct State
     {
@@ -284,7 +295,7 @@ extension DaydreamController: CBCentralManagerDelegate
         DispatchQueue.main.async {
             self.delegate?.daydreamControllerDidConnect(self)
         }
-        peripheral.discoverServices(nil)
+        peripheral.discoverServices([DAYDREAM_SERVICE, BATTERY_SERVICE])
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
@@ -305,7 +316,9 @@ extension DaydreamController: CBPeripheralDelegate
         
         peripheral.services?.forEach { (service) in
             if DAYDREAM_SERVICE == service.uuid {
-                peripheral.discoverCharacteristics(nil, for: service)
+                peripheral.discoverCharacteristics([DAYDREAM_CHARACTERISTIC], for: service)
+            } else if BATTERY_SERVICE == service.uuid {
+                peripheral.discoverCharacteristics([BATTERY_LEVEL_CHARACTERISTIC], for: service)
             }
         }
     }
@@ -316,32 +329,42 @@ extension DaydreamController: CBPeripheralDelegate
         }
         
         service.characteristics?.forEach { (characteristic) in
-            
-            if characteristic.uuid == DAYDREAM_CHARACTERISTIC {
+            if DAYDREAM_CHARACTERISTIC == characteristic.uuid {
                 self.characteristic = characteristic
                 self.peripheral?.setNotifyValue(true, for: characteristic)
                 print("\(peripheral.name!) sensor notifications on")
+            } else if BATTERY_LEVEL_CHARACTERISTIC == characteristic.uuid {
+                self.batteryLevelCharacteristic = characteristic
+                self.peripheral?.readValue(for: characteristic) // read first value
+                self.peripheral?.setNotifyValue(true, for: characteristic) // only if level changes
+                print("\(peripheral.name!) battery notifications on")
             }
         }
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        guard characteristic == self.characteristic else {
-            return
-        }
-        guard let sensorData = characteristic.value else {
-            return
-        }
-        guard DAYDREAM_SENSOR_DATA_SIZE == sensorData.count else {
-            return
+        if error != nil {
+            print("Error updating characteristic: \(error?.localizedDescription)")
         }
         
-        let newState = State(sensorData, prev: state)
-        prevState = state
-        state = newState
-        
-        DispatchQueue.main.async {
-            self.delegate?.daydreamControllerDidUpdate(self, state: newState)
+        if characteristic == self.characteristic {
+            guard let sensorData = characteristic.value, 20 == sensorData.count else {
+                return
+            }
+            
+            let newState = State(sensorData, prev: state)
+            self.prevState = state
+            self.state = newState
+            
+            DispatchQueue.main.async {
+                self.delegate?.daydreamControllerDidUpdate(self, state: newState)
+            }
+        } else if characteristic == self.batteryLevelCharacteristic {
+            guard let batteryData = characteristic.value, 1 == batteryData.count else {
+                return
+            }
+
+            self.batteryLevel = batteryData[0]
         }
     }
 }
@@ -357,4 +380,3 @@ extension CBPeripheralState: CustomStringConvertible
         }
     }
 }
-// 360 ;-)
