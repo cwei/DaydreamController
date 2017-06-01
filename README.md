@@ -48,7 +48,7 @@ extension GameViewController: DaydreamControllerDelegate
             orientation0 = GLKQuaternionInvert(state.orientation)
         }
         
-        let q = GLKQuaternionMultiply(orientation0 ,state.orientation)
+        let q = GLKQuaternionMultiply(orientation0, state.orientation)
         ship.orientation = SCNQuaternion(q.x, q.y, q.z, q.w)
     }
 }
