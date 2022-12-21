@@ -1,6 +1,6 @@
 # DaydreamController
 
-Supports the Google VR [Daydream View Controller](https://vr.google.com/intl/en_en/daydream/headset/) on iOS.
+Supports the Google VR [Daydream View Controller](https://support.google.com/daydream/answer/7184597) on iOS.
 This is a first working hack.
 
 ## Try it in your own project
